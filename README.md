@@ -1,6 +1,8 @@
 # PythonSandbox
 This repo is a collection for python scripts I have created as a part of other work
 
+<br/>
+
 ---
 ## Cache
 Cache aims to save data in save data locally, with a get delegate to fetch missing data
@@ -33,6 +35,13 @@ Run the `Cache` tests by running the script from command line
 ```Batchfile
 python cache.py
 ```
+
+## JsonCache
+`JsonCache` Extends the `Cache` class to store and retrieve data to and from a JSON file
+
+Works exactly like `Cache` however, since JSON cannot store non-string keys adding the additional restriction that get & set keys have to be strings. Specifically, `str` types
+
+<br/>
 
 ---
 ## Karpekar Number
@@ -86,6 +95,7 @@ Found Kaprekars Constant in 7 iterations
 Input is: 6944
 Found Kaprekars Constant in 7 iterations
 ```
+<br/>
 
 ---
 ## FormatJson
