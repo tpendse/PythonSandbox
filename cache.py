@@ -2,6 +2,9 @@
 The Cache class caches data, with a delegate to get missing data
 '''
 
+from fileinput import filename
+import json
+
 class Cache:
 	def __init__(self, getAction):
 		self.getAction = getAction
@@ -23,9 +26,33 @@ class Cache:
 	def __contains__(self, key):
 		return key in self.data
 
+
+class JsonCache(Cache):
+	def __init__(self, getAction, filename):
+		super().__init__(getAction)
+		self.filename = filename
+	
+	def __getitem__(self, key):
+		if not isinstance(key, str):
+			raise RuntimeError('Keys need to be strings!')
+		return super().__getitem__(key)
+	
+	def __setitem__(self, key, newvalue):
+		if not isinstance(key, str):
+			raise RuntimeError('Keys need to be strings!')
+		return super().__setitem__(key, newvalue)
+	
+	def load(self):
+		with open(self.filename, 'r') as json_file:
+			self.data = json.load(json_file)
+	
+	def save(self):
+		with open(self.filename, 'w') as json_file:
+			json.dump(self.data, json_file)
+
 #------------------------------------------------------------------------------------------
 
-import unittest
+import unittest, pathlib, os
 
 class CacheTests(unittest.TestCase):
 	GetCallCount = 0
@@ -66,6 +93,33 @@ class CacheTests(unittest.TestCase):
 		self.assertTrue(123 in cache)
 		self.assertFalse(cache.has('abc'))
 		self.assertFalse('abc' in cache)
+
+
+class JsonCacheTests(CacheTests):
+	JsonFilename = os.path.join(pathlib.Path(__file__).parent.resolve(), 'test_output.json')
+
+	def test_save_load(self):
+		jsoncache1 = JsonCache(CacheTests.GetDelegate, self.JsonFilename)
+		jsoncache1['123'] = '123'
+		jsoncache1['abc'] = 'abc'
+		jsoncache1.save()
+
+		jsoncache2 = JsonCache(CacheTests.GetDelegate, self.JsonFilename)
+		jsoncache2.load()
+		self.assertTrue('123' in jsoncache2)
+		self.assertEqual('123', jsoncache2['123'])
+		self.assertTrue('abc' in jsoncache2)
+		self.assertEqual('abc', jsoncache2['abc'])
+	
+	def test_get_set_nonstring(self):
+		jsoncache = JsonCache(CacheTests.GetDelegate, self.JsonFilename)
+		with self.assertRaises(RuntimeError):
+			jsoncache[123] = 123
+		
+		with self.assertRaises(RuntimeError):
+			jsoncache[1.1] = 123
+
+
 
 
 if __name__ == "__main__":
